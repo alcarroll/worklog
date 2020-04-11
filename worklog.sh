@@ -1,14 +1,10 @@
 #! /bin/bash
-
-## TO DO
-## - improve breakdown date entry
-## - add monthly and yearly arguments for breakdown 
-
 function worklog()
 {
+dateonly=$(date +%a,%d%b%Y)
 datetime=$(date +%a,%d%b%Y,%H:%M)
 usage="
-(worklog) [ -L ] [-r] [-n] [-l] [-h n] -- display help for global support functions
+(worklog) [ -L ] [-r] [-n] [-l] [-h n] -- display help for worklog
 
 where:
     -L login/logout 
@@ -20,9 +16,9 @@ where:
 
 if [ $# -eq 0 ]
   then
-    printf "\nThe ticketlog command requires arguments:\n\n$usage"
+    printf "\nWorklog requires arguments:\n\n$usage"
     else
-#    local OPTIND option
+    local OPTIND option
     while getopts ":Lrnl" option; do
      case $option in
         r) read -ep "Enter ticket ID: " ticketid
@@ -39,11 +35,11 @@ if [ $# -eq 0 ]
                 else
             printf "$datetime,NOTE,L,Lunch end\n" >> ~/worklog/logs/replies.log
             fi ;;
-        L) loginstatus=$(grep -E 'LOGIN|LOGOUT' ~/worklog/logs/replies.log | tail -1 | awk -F"," '{print $4}')
+        L) loginstatus=$(grep -E 'LOGIN|LOGOUT' ~/worklog/logs/replies.log | tail -1 | awk -F"," '{print $3}')
             if [[ "$loginstatus" == "LOGOUT" ]]; then
-                printf "$datetime,LOGIN\n" >> ~/worklog/logs/replies.log
+                printf "$dateonly,LOGIN\n" >> ~/worklog/logs/replies.log
             else
-                printf "$datetime,LOGOUT\n" >> ~/worklog/logs/replies.log
+                printf "$dateonly,LOGOUT\n" >> ~/worklog/logs/replies.log
             fi ;;
        \?) echo -e "\nInvalid option:\n" >&2
            echo "$usage" >&2 ;;
@@ -52,26 +48,17 @@ done
 fi
 }
 
-## breakdown function WIP
+
 function breakdown()
 {
 shifthours=(21 22 23 00 01 02 03 04)
 
-read -ep "Year: " startyear
-read -ep "Month: " startmonth
-read -ep "Day shift started on: " startday
-
-
-starton="$startday$startmonth$startyear"
-endon="$endday$endmonth$endyear"
-
-echo $starton
-echo $endon
-
+read -ep "Date shift started on (DDMonYYYY): " startdate
+#create tmp file
+awk '/'$startdate',LOGIN/,/LOGOUT/' ~/worklog/logs/replies.log | grep -vE 'LOGIN|LOGOUT' > ~/worklog/logs/breakdown.tmp
 
 for h in ${shifthours[@]}; do
-        hourcount=$(grep -i $startday$startmonth ~/worklog/logs/replies.log | grep ",$h" | grep -vE ',L,|,N,' | wc -l | tr -d '[:space:]');
+        hourcount=$(cat ~/worklog/logs/breakdown.tmp | grep ",$h" | grep -vE ',L,|,N,' | wc -l | tr -d '[:space:]');
         printf "hour:\t\t $h:00\nticket count:\t $hourcount\n";
-#        shiftnotes=$()
     done
 }

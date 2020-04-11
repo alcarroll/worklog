@@ -1,7 +1,7 @@
 # worklog
 loggin' work
 
-(worklog) [ -L ] [-r] [-n] [-l] [-h n] -- display help for global support functions
+(worklog) [ -L ] [-r] [-n] [-l] [-h n] -- display help for worklog
 
 where:
 
@@ -11,3 +11,11 @@ where:
     -n log a note
     -l log lunch start/stop (will auto detect start/stop)
     -h show this help contents
+
+
+##########
+TO DO:
+- improve breakdown date entry
+- add monthly and yearly arguments for breakdown 
+- add notes to breakdown output
+
