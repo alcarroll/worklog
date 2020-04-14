@@ -21,14 +21,17 @@ if [ $# -eq 0 ]
     local OPTIND option
     while getopts ":Lrnl" option; do
      case $option in
+        # Ticket reply entry
         r) read -ep "Enter ticket ID: " ticketid
             read -ep "Enter tier: " tier
             read -ep "Enter description: " descrip
             printf "$datetime,$ticketid,T$tier,$descrip\n" >> ~/worklog/logs/work.log
             printf "\nReply logged!\n" ;;
+        # Ticket note entry
         n) read -ep "Enter note: " notecontent
             printf "$datetime,NOTE,N,$notecontent\n" >> ~/worklog/logs/work.log
             printf "\nNote logged!\n" ;;
+        # Start and stop lunch
         l) lunchstatus=$(tail -1 ~/worklog/logs/work.log | grep "Lunch start")
             if [ -z "$lunchstatus" ]
             then
@@ -38,6 +41,7 @@ if [ $# -eq 0 ]
             printf "$datetime,NOTE,L,Lunch end\n" >> ~/worklog/logs/work.log
             printf "\nLunch stop logged!\n"
             fi ;;
+        # Log in and out   
         L) loginstatus=$(grep -E 'LOGIN|LOGOUT' ~/worklog/logs/work.log | tail -1 | awk -F"," '{print $3}')
             if [[ "$loginstatus" == "LOGOUT" ]]; then
                 printf "$dateonly,LOGIN\n" >> ~/worklog/logs/work.log
@@ -46,6 +50,7 @@ if [ $# -eq 0 ]
                 printf "$dateonly,LOGOUT\n" >> ~/worklog/logs/work.log
                 printf "\nLogged out!\n"
             fi ;;
+        # Invalid response handling
        \?) echo -e "\nInvalid option:\n" >&2
            echo "$usage" >&2 ;;
      esac
@@ -64,9 +69,11 @@ function breakdown()
 shifthours=(21 22 23 00 01 02 03 04)
 
 read -ep "Date shift started on (DDMonYYYY): " startdate
-#create tmp file
+
+# Gather shift data from work.log
 awk '/'$startdate',LOGIN/,/LOGOUT/' ~/worklog/logs/work.log | grep -vE 'LOGIN|LOGOUT' > ~/worklog/files/breakdown.tmp
 
+# Gather and output reply counts
 printf "\nReply count by hour:\n\n"
 for h in ${shifthours[@]}; do
         hourcount=$(cat ~/worklog/files/breakdown.tmp | grep ",$h" | grep -vE ',L,|,N,' | wc -l | tr -d '[:space:]');
@@ -75,6 +82,7 @@ for h in ${shifthours[@]}; do
 
 printf "\nShfit notes: \n\n$(grep ",N," ~/worklog/files/breakdown.tmp | awk -F',' '{print $3,$6}')\n\n"
 
+# Cleanup
 rm ~/worklog/files/breakdown.tmp
 ## End of breakdown function
 }
