@@ -17,5 +17,4 @@ where:
 TO DO:
 - improve breakdown date entry
 - add monthly and yearly arguments for breakdown 
-~~- add notes to breakdown output~~
 
