@@ -16,4 +16,5 @@ where:
 ##########
 TO DO:
 - improve breakdown date entry
-- add monthly and yearly arguments for breakdown 
+- work in identifier for replies (e.g. N = notes, L = lunch)
+ 
