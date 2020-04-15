@@ -16,9 +16,9 @@ where:
 
 where:
 
-    -d get log breakdown for a day 
-    -m get montly log breakdown
-    -y get yearly log breakdown
+    -d get log breakdown for a specififed day 
+    -m get log breakdown for a specififed month
+    -y get log breakdown for a specififed year
 
 
 
@@ -27,4 +27,5 @@ where:
 TO DO:
 - improve breakdown date entry
 - work in identifier for replies (e.g. N = notes, L = lunch)
- 
+- modify ticket tier entry
+- add tier stats to breakdown output

@@ -90,7 +90,7 @@ usage="
 
 where:
     -d get log breakdown for a day 
-    -m get montly log breakdown
+    -m get monthly log breakdown
     -y get yearly log breakdown
 
 "
@@ -112,7 +112,7 @@ if [ $# -eq 0 ]
                 hourcount=$(cat ~/worklog/files/breakdown.tmp | grep ",$h" | grep -vE ',L,|,N,' | wc -l | tr -d '[:space:]');
                 printf "hour:\t\t $h:00\nticket count:\t $hourcount\n";
             done
-            printf "\nShfit notes: \n\n$(grep ",N," ~/worklog/files/breakdown.tmp | awk -F',' '{print $3,$6}')\n\n"
+            printf "\nShift notes: \n\n$(grep ",N," ~/worklog/files/breakdown.tmp | awk -F',' '{print $3,$6}')\n\n"
             # Cleanup
             rm ~/worklog/files/breakdown.tmp ;;
         # Monthly breakdown
