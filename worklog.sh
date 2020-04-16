@@ -29,14 +29,15 @@ if [ $# -eq 0 ]
             read -ep "Enter description: " descrip
             printf "$datetime,$ticketid,T$tier,$descrip\n" >> ~/worklog/logs/work.log
             printf "\nReply logged!\n" 
+            activereplycount=$(($activereplycount + 1))
             # Output most recent log entries:
-            printf "\n\nMost recent log activity:\n$(tail -3 ~/worklog/logs/work.log)\n\n" ;;
+            printf "\n\nMost recent log activity:\n\n$(tail -5 ~/worklog/logs/work.log)\n\nCurrent reply count: $activereplycount\n\n" ;;
         # Ticket note entry
         n) read -ep "Enter note: " notecontent
             printf "$datetime,NOTE,N,$notecontent\n" >> ~/worklog/logs/work.log
             printf "\nNote logged!\n"
             # Output most recent log entries:
-            printf "\n\nMost recent log activity:\n$(tail -3 ~/worklog/logs/work.log)\n\n" ;;
+            printf "\n\nMost recent log activity:\n$(tail -5 ~/worklog/logs/work.log)\n\n" ;;
         # Start and stop lunch
         l) lunchstatus=$(tail -1 ~/worklog/logs/work.log | grep "Lunch start")
             if [ -z "$lunchstatus" ]
@@ -52,6 +53,7 @@ if [ $# -eq 0 ]
             if [[ "$loginstatus" == "LOGOUT" ]]; then
                 printf "$dateonly,LOGIN\n" >> ~/worklog/logs/work.log
                 printf "\nLogged in!\n"
+                activereplycount=0
             else
                 printf "$dateonly,LOGOUT\n" >> ~/worklog/logs/work.log
                 printf "\nLogged out!\n"
@@ -63,12 +65,13 @@ if [ $# -eq 0 ]
             todaylogin=$(cat ~/worklog/logs/work.log | sed '1!G;h;$!d' | grep LOGIN | head -1)
             # Get today's log entries
             awk '/'$todaylogin'/,0' ~/worklog/logs/work.log >> ~/worklog/files/today.tmp
+            todayentries=$(cat ~/worklog/files/today.tmp)
             todayreplycount=$(cat ~/worklog/files/today.tmp | grep -vE ',N,|,L,|LOGIN|LOGOUT' | wc -l)
             todaynotecount=$(cat ~/worklog/files/today.tmp | grep ",N," | wc -l)
             # Display today's data
             printf "\n This shfit's log entries:\n $todayentries\n\nTotal replies: $todayreplycount\nTotal notes: $todaynotecount\n\n"
             # Clean up
-            rm ~/worklog/files/today.tmp;;
+            rm ~/worklog/files/today.tmp ;;
         # Invalid response handling
        \?) printf "\nInvalid option:\n" >&2
            printf "$usage" >&2 ;;
@@ -89,9 +92,9 @@ usage="
 (breakdown) [-L ] [-r] [-n] [-l] [-e ][-h n] -- display help for breakdown
 
 where:
-    -d get log breakdown for a day 
-    -m get monthly log breakdown
-    -y get yearly log breakdown
+    -d get log breakdown for a specififed date 
+    -m get log breakdown for a specififed month
+    -y get log breakdown for a specififed year
 
 "
 
