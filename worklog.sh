@@ -3,7 +3,7 @@ function worklog()
 {
 # Create required directories
 if [ ! -d "~/.worklog/" ]; then
-    mkdir ~/.worklog/
+    mkdir ~/.worklog/ > /dev/null 2>&1
 fi
 
 # Gather date and time info
