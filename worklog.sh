@@ -3,7 +3,7 @@ function worklog()
 {
 # Create required directories
 if [ ! -d "~/.worklog/" ]; then
-    mkdir ~/.worklog/ > /dev/null 2>&1
+    mkdir ~/.worklog/ 2> /dev/null
 fi
 
 # Gather date and time info
@@ -33,9 +33,22 @@ if [ $# -eq 0 ]
      case $option in
         # Ticket reply entry
         r) read -ep "Enter ticket ID: " ticketid
+            printf "\n1) T1\n2) T2\n3) ESG\n4) Other\n\n"
             read -ep "Enter tier: " tier
+                if [ $tier == "1" ]; then
+                    tier="T1"
+                elif [ $tier == "2" ]; then
+                    tier="T2"
+                elif [ $tier == "3" ]; then
+                    tier="ESG"
+                elif [ $tier == "4" ]; then
+                    tier="Other"
+                else
+                    printf "\nSetting tier to Other, use 'worklog -e' to edit if needed\n"
+                    tier="Other"
+                fi
             read -ep "Enter description: " descrip
-            printf "$datetime,$ticketid,T$tier,$descrip\n" >> ~/.worklog/work.log
+            printf "$datetime,$ticketid,$tier,$descrip\n" >> ~/.worklog/work.log
             printf "\nReply logged!\n\n" 
             activereplycount=$(($activereplycount + 1))
             # Output most recent log entries:
