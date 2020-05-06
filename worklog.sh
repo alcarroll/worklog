@@ -141,6 +141,7 @@ if [ $# -eq 0 ]
             printf "\nT2 replies: $(grep ",T2," ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nESG replies: $(grep ",ESG," ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nOther replies: $(grep ",Other," ~/.worklog/breakdown.tmp | wc -l)\n"
+	    printf "\nUnique ticket count: $(cat ~/.worklog/breakdown.tmp | grep -vE ',N,|,L,' | awk -F',' '{freq[$4]++} END {for (x in freq) {print freq[x], x}}' | wc -l)\n"
             printf "\nShift notes: \n\n$(grep ",N," ~/.worklog/breakdown.tmp | awk -F',' '{print $3,$6}')\n\n"
             # Cleanup
             rm ~/.worklog/breakdown.tmp ;;
