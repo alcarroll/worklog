@@ -90,7 +90,8 @@ if [ $# -eq 0 ]
             todayreplycount=$(cat ~/.worklog/today.tmp | grep -vE ',N,|,L,|LOGIN|LOGOUT' | wc -l)
             todaynotecount=$(cat ~/.worklog/today.tmp | grep ",N," | wc -l)
             # Display today's data
-            printf "\n This shfit's log entries:\n $todayentries\n\nTotal replies: $todayreplycount\nTotal notes: $todaynotecount\n\n"
+            printf "\n This shfit's log entries:\n $todayentries\n\nTotal replies: $todayreplycount\nTotal notes: $todaynotecount\n"
+	    printf "Unique ticket count: $(cat ~/.worklog/today.tmp | grep -vE ',N,|,L,' | awk -F',' '{freq[$4]++} END {for (x in freq) {print freq[x], x}}' | wc -l)\n\n"
             # Clean up
             rm ~/.worklog/today.tmp ;;
         # Invalid response handling
@@ -110,7 +111,7 @@ shifthours=(21 22 23 00 01 02 03 04)
 months=(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
 
 usage="
-(breakdown) [-L ] [-r] [-n] [-l] [-e ] [-h n] -- display help for breakdown
+(breakdown) [-L] [-r] [-n] [-l] [-e] [-h n] -- display help for breakdown
 
 where:
     -d get log breakdown for a specififed date 
