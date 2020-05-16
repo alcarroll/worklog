@@ -12,12 +12,14 @@ datetime=$(date +%a,%d%b%Y,%H:%M)
 
 # Usage output
 usage="
-(worklog) [-L ] [-r] [-n] [-l] [-e ][-h n] -- display help for worklog
+(worklog) [-L ] [-r] [-n] [-C] [-R] [-l] [-e][-h n] -- display help for worklog
 
 where:
     -L login/logout 
     -r log a ticket reply
     -n log a note
+    -C log monitoring alert claim
+    -R log montioring alert resolution
     -l log lunch start/stop (will auto detect start/stop)
     -t review today's log enties
     -e manually edit log
@@ -29,7 +31,7 @@ if [ $# -eq 0 ]
     printf "\nWorklog requires arguments:\n\n$usage"
     else
     local OPTIND option
-    while getopts ":Lrnlet" option; do
+    while getopts ":LrnCRlet" option; do
      case $option in
         # Ticket reply entry
         r) read -ep "Enter ticket ID: " ticketid
@@ -53,12 +55,18 @@ if [ $# -eq 0 ]
             activereplycount=$(($activereplycount + 1))
             # Output most recent log entries:
             printf "\n\nMost recent log activity:\n\n$(tail -5 ~/.worklog/work.log)\n\nCurrent reply count: $activereplycount\n\n" ;;
-        # Ticket note entry
+        # Note entry
         n) read -ep "Enter note: " notecontent
             printf "$datetime,NOTE,N,$notecontent\n" >> ~/.worklog/work.log
             printf "\nNote logged!\n\n"
             # Output most recent log entries:
             printf "\n\nMost recent log activity:\n$(tail -5 ~/.worklog/work.log)\n\n" ;;
+	# Alert claimed entry
+	C) printf "$datetime,ALERT,C,alert claimed\n" >> ~/.worklog/work.log
+	    printf "\nAlert claim logged\n\n" ;;
+	# Alert resolved entry
+	R) printf "$datetime,ALERT,R,alert resolved\n"  >> ~/.worklog/work.log 
+	    printf "\nAlert resolution logged\n\n" ;;
         # Start and stop lunch
         l) lunchstatus=$(tail -1 ~/.worklog/work.log | grep "Lunch start")
             if [ -z "$lunchstatus" ]
@@ -89,8 +97,9 @@ if [ $# -eq 0 ]
             todayentries=$(cat ~/.worklog/today.tmp)
             todayreplycount=$(cat ~/.worklog/today.tmp | grep -vE ',N,|,L,|LOGIN|LOGOUT' | wc -l)
             todaynotecount=$(cat ~/.worklog/today.tmp | grep ",N," | wc -l)
+	    todayalertcount=$(cat ~/.worklog/today.tmp | grep ",R," | wc -l)
             # Display today's data
-            printf "\n This shfit's log entries:\n $todayentries\n\nTotal replies: $todayreplycount\nTotal notes: $todaynotecount\n"
+            printf "\n This shfit's log entries:\n $todayentries\n\nTotal replies: $todayreplycount\nTotal notes: $todaynotecount\nAlerts resolved: $todayalertcount\n"
 	    printf "Unique ticket count: $(cat ~/.worklog/today.tmp | grep -vE ',N,|,L,' | awk -F',' '{freq[$4]++} END {for (x in freq) {print freq[x], x}}' | wc -l)\n\n"
             # Clean up
             rm ~/.worklog/today.tmp ;;
@@ -134,15 +143,16 @@ if [ $# -eq 0 ]
             # Gather and output reply counts
             printf "\nReply count by hour:\n\n"
             for h in ${shifthours[@]}; do
-                hourcount=$(cat ~/.worklog/breakdown.tmp | grep ",$h" | grep -vE ',L,|,N,' | wc -l | tr -d '[:space:]');
+                hourcount=$(cat ~/.worklog/breakdown.tmp | grep ",$h" | grep -vE ',L,|,N,|,C,|,R,|,l,' | wc -l | tr -d '[:space:]');
                 printf "hour:\t\t $h:00\nticket count:\t $hourcount\n";
             done
-            printf "\nTotal replies: $(grep -vE ',N,|,L,'  ~/.worklog/breakdown.tmp | wc -l)\n"
+            printf "\nTotal replies: $(grep -vE ',N,|,L,|,C,|,R,'  ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nT1 replies: $(grep ",T1," ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nT2 replies: $(grep ",T2," ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nESG replies: $(grep ",ESG," ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nOther replies: $(grep ",Other," ~/.worklog/breakdown.tmp | wc -l)\n"
-	    printf "\nUnique ticket count: $(cat ~/.worklog/breakdown.tmp | grep -vE ',N,|,L,' | awk -F',' '{freq[$4]++} END {for (x in freq) {print freq[x], x}}' | wc -l)\n"
+	    printf "\nUnique ticket count: $(cat ~/.worklog/breakdown.tmp | grep -vE ',N,|,L,|,C,|,R,|,l,' | awk -F',' '{freq[$4]++} END {for (x in freq) {print freq[x], x}}' | wc -l)\n"
+	    printf "\nAlerts resolved: $(grep ",R," ~/.worklog/breakdown.tmp | wc -l)\n"
             printf "\nShift notes: \n\n$(grep ",N," ~/.worklog/breakdown.tmp | awk -F',' '{print $3,$6}')\n\n"
             # Cleanup
             rm ~/.worklog/breakdown.tmp ;;
@@ -152,7 +162,7 @@ if [ $# -eq 0 ]
             # Gather and output breakdown by day of month
             grep $bdmonth ~/.worklog/work.log | awk -F"," '{freq[$2]++} END {for (x in freq) {print x, freq[x]}}' | sort | while read line; do 
                 shiftdate=$(echo $line | awk '{print $1}');
-                shiftreplycount=$(grep $shiftdate ~/.worklog/work.log | grep -Ev ',N,|,L,|LOGIN|LOGOUT' | wc -l);
+                shiftreplycount=$(grep $shiftdate ~/.worklog/work.log | grep -Ev ',N,|,L,|,C,|,R,|LOGIN|LOGOUT' | wc -l);
                 shiftnotecount=$(grep $shiftdate ~/.worklog/work.log | grep ",N,"| wc -l); 
                 printf "$shiftdate \n reply count: $shiftreplycount\n note count: $shiftnotecount\n"; 
                 done
@@ -164,7 +174,7 @@ if [ $# -eq 0 ]
             printf "\n Breadown for $bdyear:"
             # Gather and output breakdown by month of year
             for m in ${months[@]}; do 
-                monthreplycount=$(grep $m$bdyear ~/.worklog/work.log | grep -vE ',N,|,L,|LOGIN|LOGOUT' | wc -l); 
+                monthreplycount=$(grep $m$bdyear ~/.worklog/work.log | grep -vE ',N,|,L,|,C,|,R,|LOGIN|LOGOUT' | wc -l); 
                 monthnotecount=$(grep $m$bdyear ~/.worklog/work.log | grep ",N," | wc -l); 
                 printf "\nMonth: $m$bdyear\nReply count: $monthreplycount\nNote count: $monthnotecount\n"; 
             done
