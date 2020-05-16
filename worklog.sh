@@ -12,7 +12,7 @@ datetime=$(date +%a,%d%b%Y,%H:%M)
 
 # Usage output
 usage="
-(worklog) [-L ] [-r] [-n] [-C] [-R] [-l] [-e][-h n] -- display help for worklog
+(worklog) [-L] [-r] [-n] [-C] [-R] [-l] [-e] [-h n] -- display help for worklog
 
 where:
     -L login/logout 
@@ -23,7 +23,7 @@ where:
     -l log lunch start/stop (will auto detect start/stop)
     -t review today's log enties
     -e manually edit log
-    -h show this help contents
+    -h show this help contents\n\n
 "
 
 if [ $# -eq 0 ]
