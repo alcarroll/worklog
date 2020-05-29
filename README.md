@@ -15,3 +15,10 @@ Just a small bash project to keep a log of ticket replies throughout a shift and
     -e manually edit log
     -h show this help contents
 ```
+```
+(breakdown) [-L] [-r] [-n] [-l] [-e] [-h n] -- display help for breakdown
+where:
+    -d get log breakdown for a specififed date 
+    -m get log breakdown for a specififed month
+    -y get log breakdown for a specififed year
+```
