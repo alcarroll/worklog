@@ -35,7 +35,7 @@ if [ $# -eq 0 ]
      case $option in
         # Ticket reply entry
         r) read -ep "Enter ticket ID: " ticketid
-            printf "\n1) T1\n2) T2\n3) ESG\n4) Other\n\n"
+            printf "\n1) T1\n2) T2\n3) ESG\n4) Worx/Sysops\n5) Other\n\n"
             read -ep "Enter tier: " tier
                 if [ $tier == "1" ]; then
                     tier="T1"
@@ -44,6 +44,8 @@ if [ $# -eq 0 ]
                 elif [ $tier == "3" ]; then
                     tier="ESG"
                 elif [ $tier == "4" ]; then
+                    tier="WorxSysops"
+		elif [ $tier == "5" ]; then
                     tier="Other"
                 else
                     printf "\nSetting tier to Other, use 'worklog -e' to edit if needed\n"
