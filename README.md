@@ -1,6 +1,6 @@
 # Worklog
 
-Just a small bash project to keep a log of ticket replies throughout a shift and to build some familiarity with git.
+Simple bash script to keep a log of personal work activity throughout a shift.
 
 ```
 (worklog) [-L] [-r] [-n] [-C] [-R] [-l] [-e] [-h n] -- display help for worklog
@@ -10,11 +10,12 @@ Just a small bash project to keep a log of ticket replies throughout a shift and
     -n log a note
     -C log monitoring alert claim
     -R log montioring alert resolution
-    -l log lunch start/stop (will auto detect start/stop)
+    -l set omni status to lunch (will auto detect start/stop)
+    -p set omni status to phone
+    -f set omni status to phasing
+    -o set omni status to offline
     -t review today's log enties
     -e manually edit log
-    -h show this help contents
-```
 ```
 (breakdown) [-L] [-r] [-n] [-l] [-e] [-h n] -- display help for breakdown
 where:
