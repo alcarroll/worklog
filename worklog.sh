@@ -12,7 +12,7 @@ datetime=$(date +%a,%d%b%Y,%H:%M)
 
 # Usage output
 usage="
-(worklog) [-L] [-r] [-n] [-C] [-R] [-l] [-e] [-h n] -- display help for worklog
+(worklog) [-L] [-r] [-n] [-C] [-R] [-p] [-l] [-f] [-o] [-e] [-h n] -- display help for worklog
 
 where:
     -L login/logout 
@@ -20,7 +20,10 @@ where:
     -n log a note
     -C log monitoring alert claim
     -R log montioring alert resolution
-    -l log lunch start/stop (will auto detect start/stop)
+    -l set omni status to lunch (will auto detect start/stop)
+    -p set omni status to phone
+    -f set omni status to phasing
+    -o set omni status to offline
     -t review today's log enties
     -e manually edit log
     -h show this help contents\n\n
@@ -31,7 +34,7 @@ if [ $# -eq 0 ]
     printf "\nWorklog requires arguments:\n\n$usage"
     else
     local OPTIND option
-    while getopts ":LrnCRlet" option; do
+    while getopts ":LrnCRplfoet" option; do
      case $option in
         # Ticket reply entry
         r) read -ep "Enter ticket ID: " ticketid
@@ -69,16 +72,18 @@ if [ $# -eq 0 ]
 	# Alert resolved entry
 	R) printf "$datetime,ALERT,R,alert resolved\n"  >> ~/.worklog/work.log 
 	    printf "\nAlert resolution logged\n\n" ;;
-        # Start and stop lunch
-        l) lunchstatus=$(tail -1 ~/.worklog/work.log | grep "Lunch start")
-            if [ -z "$lunchstatus" ]
-            then
-            printf "$datetime,NOTE,L,Lunch start\n" >> ~/.worklog/work.log
-            printf "\nLunch start logged!\n\n"
-                else
-            printf "$datetime,NOTE,L,Lunch end\n" >> ~/.worklog/work.log
-            printf "\nLunch stop logged!\n\n"
-            fi ;;
+        # Set Omni status to phone
+        p) printf "$datetime,OMNI,O,omni status set to phone\n" >> ~/.worklog/work.log
+            printf "\nOmni phone status logged!\n\n" ;;
+	# Set Omni status to lunch
+	l) printf "$datetime,OMNI,O,omni status set to lunch\n" >> ~/.worklog/work.log
+            printf "\nOmni lunch status logged!\n\n" ;;
+	# Set Omni status to phasing
+        f) printf "$datetime,OMNI,O,omni status set to phasing\n" >> ~/.worklog/work.log
+            printf "\nOmni phasing status logged!\n\n" ;;
+	# Set Omni status to offline
+        o) printf "$datetime,OMNI,O,omni status set to offline\n" >> ~/.worklog/work.log
+            printf "\nOmni offline status logged!\n\n" ;;
         # Log in and out   
         L) loginstatus=$(grep -E 'LOGIN|LOGOUT' ~/.worklog/work.log | tail -1 | awk -F"," '{print $3}')
             if [[ "$loginstatus" == "LOGOUT" ]]; then
