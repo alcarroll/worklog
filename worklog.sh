@@ -1,4 +1,6 @@
 #! /bin/bash
+source ~/worklog/.config
+
 function worklog()
 {
 # Create required directories
@@ -12,7 +14,7 @@ datetime=$(date +%a,%d%b%Y,%H:%M)
 
 # Usage output
 usage="
-(worklog) [-L] [-r] [-n] [-C] [-R] [-p] [-l] [-f] [-o] [-e] [-h n] -- display help for worklog
+(worklog) [-L] [-r] [-n] [-C] [-R] [-p] [-l] [-f] [-o] [-e] [-B] [-h n] -- display help for worklog
 
 where:
     -L login/logout 
@@ -26,6 +28,7 @@ where:
     -o set omni status to offline
     -t review today's log enties
     -e manually edit log
+    -B backup work log to remote server (set in .config)
     -h show this help contents\n\n
 "
 
@@ -34,7 +37,7 @@ if [ $# -eq 0 ]
     printf "\nWorklog requires arguments:\n\n$usage"
     else
     local OPTIND option
-    while getopts ":LrnCRplfoet" option; do
+    while getopts ":LrnCRplfoetB" option; do
      case $option in
         # Ticket reply entry
         r) read -ep "Enter ticket ID: " ticketid
@@ -110,6 +113,9 @@ if [ $# -eq 0 ]
 	    printf "Unique ticket count: $(cat ~/.worklog/today.tmp | grep -vE ',N,|,L,' | awk -F',' '{freq[$4]++} END {for (x in freq) {print freq[x], x}}' | wc -l)\n\n"
             # Clean up
             rm ~/.worklog/today.tmp ;;
+	# Backup log to remote location specified in .config file   
+	B)  scp -i $ssh_key_location ~/.worklog/work.log $remote_username@$remote_hostname:$remote_location
+	    printf "\nLog backed up to $remote_hostname!\n\n" ;;
         # Invalid response handling
        \?) printf "\nInvalid option:\n" >&2
            printf "$usage" >&2 ;;
